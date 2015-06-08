@@ -43,7 +43,8 @@ class GameDriver
   #
   # returns nil
   def play_game
-    winners = game.play_a_game
+    get_player_moves
+    winners = game.play_game_with_current_moves
     publish_winners(winners, "round")
     display_score
   end
@@ -78,6 +79,31 @@ class GameDriver
   end
 
   private
+  
+  # get each player's move
+  # if it's a computer, get a sample
+  #
+  # returns nothing
+  def get_player_moves
+    games.players.each do |player|
+      if ! set_computer_moves?(player)
+        move = get_users_move
+        set_player_move(move, player)
+      end
+    end
+  end
+  
+  # aks the user for a move and returns only a valid move
+  #
+  # returns String
+  def get_users_move
+    move = get_user_input("What move?")
+    while game.possible_plays.include?(move)
+      move = get_user_input("Not a valid move. What move?")
+    end
+    move
+  end
+  
   # Set or default integer of how many games you are playing in this game
   #
   # num_games - Integers

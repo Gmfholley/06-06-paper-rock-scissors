@@ -45,8 +45,7 @@ class PaperRockScissorsGame
    # plays a single game and gets the winners nad saves the score
    #
    # returns array of winning players
-   def play_a_game
-     get_each_players_move
+   def play_game_with_current_moves
      winners = get_games_winners
      save_winners(winners) unless winners.nil?
      winners
@@ -82,16 +81,29 @@ class PaperRockScissorsGame
      players.length >= needed_players
    end
    
-   private
    # asks each player for their move
    #
    # returns players
-   def get_each_players_move
-     players.each do |player|
-       player.set_valid_move(possible_plays)
-     end
-     players
+   def set_player_move(player, move)
+     player.move = move
    end
+  
+   # if the player is a computer, sets the move
+   #
+   # player - Player object
+   #
+   # returns true if able to do so, sets false if not
+   def set_computer_moves?(player)
+     if player.is_computer?
+       move = possible_plays.sample
+       player.move = move
+       true
+     else
+       false
+     end
+   end
+  
+   private
   
    # returns the number of needed players in the game
    def set_needed_players(num_players=2)
