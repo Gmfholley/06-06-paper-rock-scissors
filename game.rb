@@ -81,14 +81,19 @@ class PaperRockScissorsGame
      players.length >= needed_players
    end
    
-   # asks each player for their move
+   # sets the player's move if it is valid
    #
    # player - Player object
    # move - String
    #
-   # returns players
-   def set_player_move(player, move)
-     player.move = move
+   # returns boolean if it successfully set the move
+   def set_player_move?(player, move)
+     if possible_plays.include?(move)
+        player.move = move
+        true
+      else
+        false
+      end
    end
   
    # if the player is a computer, sets the move
