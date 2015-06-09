@@ -83,6 +83,9 @@ class PaperRockScissorsGame
    
    # asks each player for their move
    #
+   # player - Player object
+   # move - String
+   #
    # returns players
    def set_player_move(player, move)
      player.move = move
@@ -94,6 +97,7 @@ class PaperRockScissorsGame
    #
    # returns true if able to do so, sets false if not
    def set_computer_moves?(player)
+     
      if player.is_computer?
        move = possible_plays.sample
        player.move = move
@@ -173,6 +177,7 @@ class PaperRockScissorsGame
    #
    # returns an Array
    def winners_between_two_players(player, against_player)
+     
      #if player's winning move = against_player's move, player wins
      if winning_play[player.move].include?(against_player.move)
         return [player]

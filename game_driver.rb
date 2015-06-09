@@ -85,10 +85,16 @@ class GameDriver
   #
   # returns nothing
   def get_player_moves
-    games.players.each do |player|
-      if ! set_computer_moves?(player)
-        move = get_users_move
-        set_player_move(move, player)
+    game.players.each do |player|
+      #if the game didn't choose the computer's move
+      #   get the user's move
+      if ! game.set_computer_moves?(player)
+        move = get_users_move(player.name)
+        game.set_player_move(player, move)
+      else
+        #output's computer's move
+        puts "#{player.name}, what move?"
+        puts player.move
       end
     end
   end
@@ -96,12 +102,12 @@ class GameDriver
   # aks the user for a move and returns only a valid move
   #
   # returns String
-  def get_users_move
-    move = get_user_input("What move?")
+  def get_users_move(name)
+    move = get_user_input("#{name}, what move?")
     while game.possible_plays.include?(move)
       move = get_user_input("Not a valid move. What move?")
     end
-    move
+    move.to_sym
   end
   
   # Set or default integer of how many games you are playing in this game
