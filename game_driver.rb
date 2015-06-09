@@ -47,6 +47,7 @@ class GameDriver
     winners = game.play_game_with_current_moves
     publish_winners(winners, "round")
     display_score
+    save_game_to_file
   end
   
   # plays a set of games until one player reaches best_of
@@ -66,7 +67,14 @@ class GameDriver
     puts "Current score:"
     game.get_score.each {|player, score| puts "#{player}:\t#{score}" }
   end
-
+  
+  # saves
+  
+  def save_game_to_file
+    save_to_file("\nNew Game:")
+    game.players.each {|player, score| save_to_file "\n#{player.name} played #{player.move} and has #{player.score}." }
+  end
+  
   # publishes who won to screen
   #
   # player - player object
@@ -78,6 +86,17 @@ class GameDriver
     end
   end
 
+  def save_to_file(save_string)
+   # puts dir.pwd
+    output = File.open( file_name,"a" )
+    output << save_string
+    output.close
+  end
+  
+  def file_name
+    "/Users/gwendolyn/Code/06-06-paper_rock_scissors/outputfile.txt"
+  end
+  
   private
   
   # get each player's move
