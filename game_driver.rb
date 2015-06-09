@@ -41,13 +41,17 @@ class GameDriver
   
   # plays a game & displays the score
   #
-  # returns nil
+  # returns winners
   def play_game
     get_player_moves
     winners = game.play_game_with_current_moves
+    
     publish_winners(winners, "round")
+    
     display_score
     save_game_to_file
+    
+    winners
   end
   
   # plays a set of games until one player reaches best_of
