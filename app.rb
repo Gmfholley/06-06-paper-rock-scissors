@@ -18,14 +18,14 @@ end
 
 while all_players.length > 1
   puts "\nPlaying a new round in the tournament!"
-  new_tournament = Tournament.new(all_players)
+  new_tournament = TournamentRound.new(all_players)
   brackets = new_tournament.get_brackets
-  
+
   #play each bracket
   brackets.each_with_index do |players_for_game, index|
     puts "Round:\t#{index + 1}"
     winners = players_for_game
-  
+
     # loop until you get a winner for the bracket
     # play_game may take a few games if there is a tie
     while winners.length > 1
@@ -33,7 +33,7 @@ while all_players.length > 1
       new_game = PaperRockScissorsGame.new(args)
       g_driver = GameDriver.new(game: new_game)
       g_driver.set_up_these_players_plus_any_more_required(players_for_game)
-      winners = g_driver.play_game  
+      winners = g_driver.play_game
     end
     #remove loser from all_players
 
@@ -44,18 +44,14 @@ while all_players.length > 1
 end
 
 puts "The ultimate winner is #{all_players[0].name}"
+puts "\Now letting the user play."
 
-# puts "\n\nNow testing by setting up my own computer players."
-#
-# deek = ComputerPlayer.new("Deek - a computer")
-#
-# second_game = PaperRockScissorsGame.new(args)
-# g_drive = GameDriver.new(game: second_game)
-#
-# g_drive.set_up_these_players_plus_any_more_required([deek])
-# g_drive.play_game
+args = {}
+new_game = PaperRockScissorsGame.new(args)
+user_game = GameDriver.new(game: new_game)
 
-
+user_game.set_up_enough_players
+user_game.play_game
 
 /#
 cplayer = ComputerPlayer.new("computer")
