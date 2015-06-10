@@ -72,8 +72,9 @@ class GameDriver
     game.get_score.each {|player, score| puts "#{player}:\t#{score}" }
   end
   
-  # saves
-  
+  # saves game to file
+  #
+  # returns nothing
   def save_game_to_file
     save_to_file("\nNew Game:")
     game.players.each {|player, score| save_to_file "\n#{player.name} played #{player.move} and has #{player.score}." }
@@ -89,7 +90,12 @@ class GameDriver
       puts "#{winner.name} won #{game_type}!"
     end
   end
-
+  
+  # saves the string to file
+  #
+  # save_string - String
+  #
+  # returns nothing
   def save_to_file(save_string)
    # puts dir.pwd
     output = File.open( file_name,"a" )
@@ -97,12 +103,11 @@ class GameDriver
     output.close
   end
   
+  private
+  # String of the file_name where you want to save
   def file_name
     "/Users/gwendolyn/Code/06-06-paper_rock_scissors/outputfile.txt"
   end
-  
-  private
-  
   # get each player's move
   # if it's a computer, get a sample
   #

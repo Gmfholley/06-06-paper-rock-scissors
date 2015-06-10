@@ -5,17 +5,20 @@ class PaperRockScissorsGame
   # Array of Player objects
   attr_reader :players, :needed_players
    
-  # if args are entered, sets the needed players
+  # sets needed_players (defaults to 2)
   # initializes players as an empty array
   #
+  # needed_players - optional Integer
+  #
   # returns self
-   def initialize(args)
+   def initialize(needed_players=2)
      @players = []
-     if args[:needed_players].nil?
-       set_needed_players
-     else
-       set_needed_players(args[:needed_players])
-     end
+     # if args[:needed_players].nil?
+     #   set_needed_players
+     # else
+     #   set_needed_players(args[:needed_players])
+     #end
+     @needed_players = needed_players
    end
   
    # Hash of the plays - put in the user's play, and you will see what it beats
