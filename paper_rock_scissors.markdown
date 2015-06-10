@@ -2,20 +2,12 @@
 
 PaperRockScissors is a class that plays the game paper rock scissors.  It has two parameters.  @players is an array of Player objects.  @needed_players is an integer of the number of needed players for the game.
 
-To initialize, the user sends the number of needed players.  The initialize function sets that or a default number of players (at 2). The @players Array is initialized.
+To initialize, the user optionally sends the number of needed players.  The default value is 2.  The @players Array is initialized as an Array.
 
 ```ruby
-  # if args are entered, sets the needed players
-  # initializes players as an empty array
-  #
-  # returns self
-   def initialize(args)
+   def initialize(needed_players=2)
      @players = []
-     if args[:needed_players].nil?
-       set_needed_players
-     else
-       set_needed_players(args[:needed_players])
-     end
+     @needed_players = needed_players
    end
 ```
 
@@ -54,14 +46,55 @@ The game has a few definitions that are useful for game play.  winning_play is a
    end
    ```
    
-   To play a game, call play_a_game, which will get a new move from each player, get the winners, add to each winner's score, and return winners.  The methods called in this method are all private utility methods within game.  The user does not need to know how it works in order to play.  But basically, it is pairing each player off and using the hash to determine the winners.
+   To play a game, you must first set the moves.  Because app.rb may have to get moves from the user, app.rb must have access to call the set moves methods on each player, one at a time.  To change the correct player, Game's method must receive a Player object as a parameter.  In the case of the user picking a move, the method also needs to take the move as a parameter.
+   
+   
+   Game has two methods for setting moves.  They both return booleans to indicate whether setting the move was successful.  The first method is set_player_move?.  It checks to see if the move the player passed is valid.  If yes, it sets the player's move attribute and returns true.  If not, it returns false. 
    
    ```ruby
-   # plays a single game and gets the winners nad saves the score
+   # sets the player's move if it is valid
+   #
+   # player - Player object
+   # move - String
+   #
+   # returns boolean if it successfully set the move
+   def set_player_move?(player, move)
+     if possible_plays.include?(move)
+        player.move = move
+        true
+      else
+        false
+      end
+   end
+  ```
+  
+  The second method works for ComputerPlayer objects.  To set a move, pass in a Player object.  If it is a computer player, it samples a move from possible_plays (the Array of valid moves) and returns true.  If it is not a ComputerPlayer, it returns false.
+  
+  (Note: Player/ComputerPlayer have a method called is_computer?)
+  
+  ```ruby
+   # if the player is a computer, sets the move
+   #
+   # player - Player object
+   #
+   # returns true if able to do so, sets false if not
+   def set_computer_moves?(player)
+     if player.is_computer?
+       move = possible_plays.sample
+       player.move = move
+       true
+     else
+       false
+     end
+   end
+   ```
+   call play_a_game_with_current_moves, which will play with current moves, get the winners, add to each winner's score, and return winners.  The methods called in this method are all private utility methods within game.  The user does not need to know how it works in order to play.  But basically, it is pairing each player off and using a Hash to determine the winners.
+   
+   ```ruby
+   # plays a single game and gets the winners and saves the score
    #
    # returns array of winning players
-   def play_a_game
-     get_each_players_move
+   def play_game_with_current_moves
      winners = get_games_winners
      save_winners(winners) unless winners.nil?
      winners
@@ -87,48 +120,38 @@ The game has a few definitions that are useful for game play.  winning_play is a
           @move = ""
       end
     ```
-   The Game class passes the Array of valid moves (called possible_plays above) to the player when they are asking the Player to set a valid move.  The game is responsible for knowing the valid moves.  But the player is responsible for choosing a valid move.
    
-   The set_valid_move will ask the player for a move and loop until a valid move is chosen by the user.  Then it will set the user's input to the @move variable.
-    
-   ```ruby
-   def set_valid_move(valid_move)
-     @move = get_valid_move(valid_move)
-   end
+   Player has an increment_score method to increment the Player's score by 1.
    
-   # gets a valid move from the user
-   #
-   # valid_move - Array of all valid moves
-   #
-   # returns String of valid move
-   def get_valid_move(valid_move)
-     puts "Moves: #{valid_move.join("\t")}"
-     try_move = get_user_input("#{name}, choose your move.").to_sym
-     while !valid_move.include?(try_move)
-       try_move = get_user_input("Not a valid move.  Try again.").to_sym
-     end
-     try_move
-   end
-   ```
-   
-   By making the player responsible for setting the moves, you can make ComputerPlayer a child class of Player, so that you can substitute in a ComputerPlayer for a Player.
-   
-   ###ComputerPlayer
-   
-   The computer player inherits all functionality from Player, except that when you ask it to pick a valid move, it samples from the array of valid_moves provided by game instead.
+   Player also has a is_computer? method which returns false.
    
    ``` ruby
-   class ComputerPlayer < Player
-     # selects an item from the valid_move array at random
-     #
-     # returns String of valid move
-     def get_valid_move(valid_move)
-       my_move = valid_move.sample
-       puts "My AI chooses #{my_move}"
-       my_move
-     end
-  
+   # indicates whether Player is a computer
+   #
+   # returns boolean (false)
+   def is_computer?
+     false
    end
+   ```
+  
+   ###ComputerPlayer
+   
+   The computer player inherits all functionality from Player, except that is_computer? is true.
+   
+      
+   ``` ruby
+require_relative "player.rb"
+
+class ComputerPlayer < Player
+  
+  # indicates of ComputerPlayer is a computer
+  #
+  # returns Boolean - true
+  def is_computer?
+    true
+  end
+  
+end
    ```
    
    #GameDriver
@@ -186,17 +209,20 @@ The game has a few definitions that are useful for game play.  winning_play is a
    end
    ```
    
-   To play a game, you can call play_game or play_best_of_game_set.  These will not only call game to play the game, they will also publish the score and the winers.  play_best_of_game_set will keep playing games until the highest score of at least one player = best_of.
+   To play a game, you can call play_game or play_best_of_game_set.  These will not only call game to play the game, they will also publish the score and the winners and save the game to file.  play_best_of_game_set will keep playing games until the highest score of at least one player = best_of.
    
    ```ruby
-   # plays a game & displays the score
-   #
-   # returns nil
-   def play_game
-     winners = game.play_a_game
-     publish_winners(winners, "round")
-     display_score
-   end
+  # plays a game & displays the score
+  #
+  # returns winners
+  def play_game
+    get_player_moves
+    winners = game.play_game_with_current_moves
+    publish_winners(winners, "round")
+    display_score
+    save_game_to_file
+    winners
+  end
   
    # plays a set of games until one player reaches best_of
    #
@@ -209,16 +235,49 @@ The game has a few definitions that are useful for game play.  winning_play is a
    end
    ```
    
-   The other two public methods of GameDriver are display_score and publish_winners.  These two classes will simply gather this information from the game and display them to the screen.
+   The other public methods of GameDriver are display_score, publish_winners, and save_to_file.  These classes will  gather this information from the game, display them to the screen, and save the results to the file.
    
    In addition, GameDriver has a number of utility methods to get information from the users or publish information to the users.
    
    Since Game controls the rules, you should be able to use GameDriver for other games, as long as they are duck types in that they have players, allow you to add players, play a game, and get the winners.
+  
+   #TournamentRound Class
+   
+   The TournamentRound class takes an Array of objects in seeded order.  It stores that Array as :players, TournamentRound's single attribute.
+   
+   ```ruby
+   class TournamentRound
+     attr_reader :players
+  
+     # initializes an array of players that are seeded in the order they arrive
+     #
+     # players - Array
+     #
+     def initialize(players)
+       @players = players
+     end
+  ```
+  
+  TournamentRound's get_brackets method returns an Array of Arrays, in which the highest seeded player is paired with the lowest seeded player, on down until there are no more pairs of players left.  If the number of players is odd, get_brackets will not return the median player in the get_brackets Array.
+  
+    ```ruby 
+     # returns an Array of Arrays of the brackets, paired off in order of seeding
+      #
+      # returns an Array
+      def get_brackets
+        brackets = []
+        (1..num_brackets).each do |x|
+          brackets.push([players[x-1], players[-x]])
+        end
+        brackets
+      end
+   ```
+   
+   TournamentRound allows you to play a round of tournaments, if you're so inclined.
    
    #App.rb
    An example of how to run GameDriver is below.  You will need to use both Game (which you pass to the GameDriver)
-   
-
+  
    ```ruby
    require_relative "game.rb"
    require_relative "game_driver.rb"
@@ -230,3 +289,52 @@ The game has a few definitions that are useful for game play.  winning_play is a
    g_driver.play_game
    g_driver.play_best_of_game_set
    ```
+   
+   To play an awesome tournament (which, hell yeah!  I want to do!), try this:
+   
+   First create some dummy players.  In this case, I will create players a - g.
+   ```ruby
+   ('a'..'g').each do |c|
+     all_players.push(ComputerPlayer.new(c))
+   end
+   ```
+   
+   Those players are stored in an Array, which we will keep sending to the TournamentRound class to get brackets.  As each bracket is played, we will remove players from the Array.  And at the end of the Round, we will re-send the winning players into another TournamentRound to get the next bracket.
+   
+   ```ruby
+
+   # all_players holds current players
+   # when length of all_players is 1, you have a winner
+
+   while all_players.length > 1
+     puts "\nPlaying a new round in the tournament!"
+     new_tournament = TournamentRound.new(all_players)
+     brackets = new_tournament.get_brackets
+    ```
+    Here is what the play of the bracket looks like...
+    ```ruby
+     #play each bracket
+     brackets.each_with_index do |players_for_game, index|
+       puts "Round:\t#{index + 1}"
+       winners = players_for_game
+
+       # loop until you get a winner for the bracket
+       # play_game may take a few games if there is a tie
+       while winners.length > 1
+         new_game = PaperRockScissorsGame.new()
+         g_driver = GameDriver.new(game: new_game)
+         g_driver.set_up_these_players_plus_any_more_required(players_for_game)
+         winners = g_driver.play_game
+       end
+       ```
+       Now that the bracket's game is won, remove the losing player from the all_players list and loop again.
+       ```ruby
+       #remove loser from all_players
+
+       players_for_game.delete(winners[0])
+       all_players.delete(players_for_game[0])
+     end
+     puts "The ultimate winner is #{all_players[0].name}"
+     ```
+     
+     And that is how you play the game!

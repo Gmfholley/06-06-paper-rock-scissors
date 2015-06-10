@@ -13,11 +13,6 @@ class PaperRockScissorsGame
   # returns self
    def initialize(needed_players=2)
      @players = []
-     # if args[:needed_players].nil?
-     #   set_needed_players
-     # else
-     #   set_needed_players(args[:needed_players])
-     #end
      @needed_players = needed_players
    end
   
@@ -45,7 +40,7 @@ class PaperRockScissorsGame
      players.push(player)
    end  
    
-   # plays a single game and gets the winners nad saves the score
+   # plays a single game and gets the winners and saves the score
    #
    # returns array of winning players
    def play_game_with_current_moves
@@ -105,7 +100,6 @@ class PaperRockScissorsGame
    #
    # returns true if able to do so, sets false if not
    def set_computer_moves?(player)
-     
      if player.is_computer?
        move = possible_plays.sample
        player.move = move

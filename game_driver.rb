@@ -45,12 +45,9 @@ class GameDriver
   def play_game
     get_player_moves
     winners = game.play_game_with_current_moves
-    
     publish_winners(winners, "round")
-    
     display_score
     save_game_to_file
-    
     winners
   end
   
